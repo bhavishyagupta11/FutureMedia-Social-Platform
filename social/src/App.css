@@ -1,0 +1,156 @@
+:root {
+  --yellow: #99dbff;
+  --orange: #17a5f4;
+  --black: #1e2944;
+  --gray: rgba(32, 47, 78, 0.68);
+  --profileShadow: 0px 8px 26px rgba(18, 48, 76, 0.18);
+  --hrColor: #cfdae5;
+  --cardColor: rgba(255, 255, 255, 0.78);
+  --buttonBg: #2ba9e2;
+  --inputColor: rgba(40, 52, 62, 0.07);
+  --photo: #4cb256;
+  --video: #4a4eb7;
+  --location: #ef5757;
+  --shedule: #e1ae4a;
+}
+
+.App {
+  position: relative;
+  overflow: hidden;
+  color: var(--black);
+  min-height: 100vh;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 8% 10%, #edf8ff 0%, transparent 32%),
+    radial-gradient(circle at 84% 18%, #dbf5ff 0%, transparent 36%),
+    linear-gradient(140deg, #f5fbff 0%, #edf4ff 42%, #f1f8ff 100%);
+}
+
+.blur {
+  position: absolute;
+  width: 25rem;
+  height: 16rem;
+  border-radius: 50%;
+  background: rgba(93, 186, 226, 0.47);
+  filter: blur(76px);
+  z-index: 0;
+}
+
+.fsmBrandBadge {
+  position: fixed;
+  top: 0.95rem;
+  left: 0.95rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.72rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(35, 135, 194, 0.2);
+  box-shadow: 0 10px 24px rgba(17, 44, 71, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.fsmBrandBadge img {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+}
+
+.fsmBrandBadge strong {
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.fsmBrandBadge span {
+  display: block;
+  font-size: 0.64rem;
+  line-height: 1.2;
+  color: #4f6f86;
+}
+
+.fsmFloat {
+  position: fixed;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.4rem 0.65rem;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(40, 125, 173, 0.18);
+  box-shadow: 0 8px 18px rgba(20, 59, 91, 0.14);
+  color: #2e6e93;
+  font-size: 0.75rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.fsmFloat img {
+  width: 17px;
+  height: 17px;
+}
+
+.fsmFloatOne {
+  right: 2.5rem;
+  top: 6rem;
+  animation: driftY 6.8s ease-in-out infinite;
+}
+
+.fsmFloatTwo {
+  right: 3.6rem;
+  bottom: 2rem;
+  animation: driftY 7.2s ease-in-out infinite reverse;
+}
+
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 30px;
+  background: var(--buttonBg);
+  transition: all 120ms ease-out;
+}
+
+.button:hover {
+  cursor: pointer;
+  color: #1598dd;
+  background: transparent;
+  border: 2px solid #1598dd;
+}
+
+@keyframes driftY {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .App {
+    padding: 0.7rem;
+  }
+
+  .fsmBrandBadge {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.4rem;
+  }
+
+  .fsmFloat {
+    display: none;
+  }
+}
