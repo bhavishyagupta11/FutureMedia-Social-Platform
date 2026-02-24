@@ -10,7 +10,7 @@ useEffect(() => {
 if (!localStorage.getItem("userId")) {
 navigate("/")
 }
-}, [])
+}, [navigate])
 return (
 <div className="Home">
 <ProfileSide />

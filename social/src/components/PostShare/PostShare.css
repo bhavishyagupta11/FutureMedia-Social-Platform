@@ -1,112 +1,171 @@
 .PostShare {
-display: flex;
-gap: 1rem;
-    background-color: var(--cardColor);
-padding: 1rem;
-    border-radius: 1rem;
+  display: flex;
+  gap: 0.9rem;
+  background-color: var(--cardColor);
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(16, 79, 124, 0.08);
+  box-shadow: 0 12px 28px rgba(18, 62, 97, 0.1);
 }
-.PostShare>img {
-    border-radius: 50%;
-width: 3rem;
-height: 3rem;
+
+.PostShareCompact {
+  margin-bottom: 0.2rem;
 }
-.PostShare>div {
-display: flex;
-    flex-direction: column;
-width: 90%;
-gap: 1rem;
+
+.PostShare > img {
+  border-radius: 50%;
+  width: 2.9rem;
+  height: 2.9rem;
+  object-fit: cover;
 }
-.PostShare>div>input {
-    background-color: var(--inputColor);
-    border-radius: 10px;
-padding: 10px;
-    font-size: 17px;
-border: none;
-outline: none;
+
+.PostShare > div {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.85rem;
 }
+
 .postOptions {
-display: flex;
-    justify-content: space-around;
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  flex-wrap: wrap;
 }
+
 .option {
-padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 10px;
-display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-family: sans-serif;
+  border: 0;
+  background: rgba(56, 156, 211, 0.08);
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 120ms ease-out;
 }
+
 .option:hover {
-cursor: pointer;
+  cursor: pointer;
+  background: rgba(56, 156, 211, 0.1);
 }
-.ps-button {
-padding: 5px;
-    padding-left: 20px;
-    padding-right: 20px;
-    font-size: 12px
+
+.optionPhoto {
+  color: var(--photo);
 }
+
+.optionVideo {
+  color: var(--video);
+}
+
 .previewImage {
-position: relative;
+  position: relative;
 }
-.previewImage>svg {
-position: absolute;
-right: 1rem;
-top: 0.5rem;
-cursor: pointer;
+
+.previewImage > svg {
+  position: absolute;
+  right: 0.8rem;
+  top: 0.6rem;
+  cursor: pointer;
+  color: #fff;
 }
-.previewImage>img {
-width: 100%;
-    max-height: 20rem;
-    object-fit: cover;
-    border-radius: 0.5rem;
+
+.previewImage > img {
+  width: 100%;
+  max-height: 20rem;
+  object-fit: cover;
+  border-radius: 0.8rem;
 }
+
 .button-share {
-display: flex;
-    align-items: center;
-    justify-content: center;
-color: white;
-border: 2px solid var(--orange);
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 15px;
-    padding-right: 15px;
-    font-size: medium;
-    font-weight: 500;
-    border-radius: 25px;
-background: var(--buttonBg);
-transition: all 100ms ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: none;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.96rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2096d6, #39b9ef);
+  transition: all 120ms ease-out;
 }
+
 .button-share:hover {
-cursor: pointer;
-color: var(--orange);
-background: transparent;
-border: 2px solid var(--orange);
+  cursor: pointer;
+  filter: brightness(1.03);
 }
+
+.button-share:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
 .InputContainer {
-width: 100%;
-height: 50px;
-display: flex;
-    align-items: center;
-    justify-content: center;
-background: #b7e6ff;
-    border-radius: 30px;
-overflow: hidden;
-cursor: pointer;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.075);
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f8ff;
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(43, 137, 197, 0.16);
 }
+
 .input {
-width: 100%;
-height: 45px;
-border: none;
-outline: none;
-    caret-color: rgb(255, 81, 0);
-    background-color: rgb(255, 255, 255);
-     border-radius: 30px;
-    padding-left: 15px;
-    letter-spacing: 0.8px;
-color: rgb(19, 19, 19);
-    font-size: 13.4px;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  border-radius: 30px;
+  padding: 0 0.9rem;
+  letter-spacing: 0.3px;
+  color: rgb(19, 19, 19);
+  font-size: 0.95rem;
+}
+
+.selectedMediaPill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border: 1px solid rgba(39, 116, 162, 0.16);
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 10px;
+  padding: 0.45rem 0.65rem;
+  color: #245371;
+  font-size: 0.85rem;
+}
+
+.selectedMediaPill button {
+  border: 0;
+  background: rgba(25, 121, 173, 0.12);
+  color: #1f6a96;
+  border-radius: 999px;
+  padding: 0.22rem 0.65rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.previewVideo {
+  width: 100%;
+  max-height: 20rem;
+  border-radius: 0.8rem;
+}
+
+.shareStatus {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.shareStatus.success {
+  color: #1f9460;
+}
+
+.shareStatus.error {
+  color: #d24452;
 }

@@ -1,0 +1,77 @@
+.profileModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10, 27, 41, 0.48);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.profileModalCard {
+  width: min(520px, 100%);
+  background: #f8fdff;
+  border-radius: 16px;
+  border: 1px solid rgba(33, 108, 157, 0.16);
+  box-shadow: 0 16px 40px rgba(15, 53, 84, 0.24);
+  padding: 1rem;
+}
+
+.profileModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.profileModalHeader h3 {
+  margin: 0;
+  color: #173d5c;
+}
+
+.profileModalHeader button {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(32, 135, 194, 0.14);
+  color: #1f6f9d;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.profileModalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.profileModalForm label {
+  font-size: 0.87rem;
+  color: #2d536f;
+  font-weight: 600;
+}
+
+.profileModalForm input,
+.profileModalForm textarea {
+  border: 1px solid rgba(24, 95, 145, 0.2);
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  outline: none;
+  font-family: inherit;
+  color: #1d3f58;
+  background: #fff;
+}
+
+.profileModalForm input:focus,
+.profileModalForm textarea:focus {
+  border-color: #1f95d6;
+  box-shadow: 0 0 0 3px rgba(31, 149, 214, 0.14);
+}
+
+.profileSaveButton {
+  margin-top: 0.4rem;
+  width: 130px;
+  height: 40px;
+}

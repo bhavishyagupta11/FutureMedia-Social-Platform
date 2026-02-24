@@ -1,7 +1,10 @@
 .RightSide {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
+  position: sticky;
+  top: 1rem;
+  height: fit-content;
 }
 
 .navIcons {
@@ -17,6 +20,14 @@
 
 .r-button {
   height: 3rem;
-  width: 80%;
+  width: 100%;
   align-self: center;
+  border-radius: 14px;
+  font-size: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .RightSide {
+    position: static;
+  }
 }

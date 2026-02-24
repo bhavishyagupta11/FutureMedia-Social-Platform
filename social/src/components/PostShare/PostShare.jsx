@@ -1,75 +1,21 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
 import "./PostShare.css";
-import { UilScenery } from "@iconscout/react-unicons";
-import { UilPlayCircle } from "@iconscout/react-unicons";
-import { UilTimes } from "@iconscout/react-unicons";
+import { UilScenery, UilPlayCircle, UilTimes } from "@iconscout/react-unicons";
 import { apiFetch } from "../../utils/api";
+import ProfileImage from "../../img/profileImg.jpg";
 
-const PostShare = () => {
+const PostShare = ({ onPostCreated, isCompact = true }) => {
   const [image, setImage] = useState(null);
   const [video, setVideo] = useState(null);
   const [desc, setDesc] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [statusType, setStatusType] = useState("");
 
-  const imageRef = useRef();
-  const videoRef = useRef();
+  const imageRef = useRef(null);
+  const videoRef = useRef(null);
 
-  const onImageChange = async (event) => {
-    if (event.target.files && event.target.files[0]) {
-      const img = event.target.files[0];
-      const reader = new FileReader();
-
-      reader.onload = function (e) {
-        // e.target.result contains the base64 string representation
-        setImage({
-          image: URL.createObjectURL(img),
-          base64String: e.target.result,
-        });
-      };
-
-      reader.readAsDataURL(img);
-      event.target.value = null;
-    }
-  };
-
-  const postImage = async (e) => {
-    e.preventDefault();
-
-    try {
-      const formData = new FormData();
-      const isImage = image !== null;
-
-      if (isImage) {
-        console.log("Hit in the image");
-        formData.append("images", image.base64String);
-      } else if (video !== null) {
-        console.log("Hit in the video");
-        formData.append("images", video.base64String);
-      } else {
-        // nothing to upload
-        return;
-      }
-
-      formData.append("name", "Tzuyu");
-      formData.append("userId", localStorage.getItem("userId"));
-      formData.append("desc", desc);
-      formData.append("likes", 0);
-      formData.append("liked", false);
-
-      const response = await apiFetch("/api/post/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        console.log("Media uploaded successfully");
-      } else {
-        console.error("Error uploading media");
-      }
-    } catch (error) {
-      console.error("Error uploading media:", error);
-    }
-
-    // Reset state and inputs
+  const resetComposer = () => {
     if (imageRef.current) imageRef.current.value = null;
     if (videoRef.current) videoRef.current.value = null;
     setImage(null);
@@ -77,34 +23,111 @@ const PostShare = () => {
     setDesc("");
   };
 
-  const onVideoChange = async (event) => {
+  const setStatus = (type, message) => {
+    setStatusType(type);
+    setStatusMessage(message);
+  };
+
+  const onImageChange = (event) => {
+    if (!(event.target.files && event.target.files[0])) return;
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      setVideo(null);
+      setImage({
+        previewUrl: URL.createObjectURL(file),
+        base64String: e.target.result,
+        fileName: file.name,
+      });
+      setStatus("", "");
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const onVideoChange = (event) => {
+    if (!(event.target.files && event.target.files[0])) return;
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      setImage(null);
+      setVideo({
+        previewUrl: URL.createObjectURL(file),
+        base64String: e.target.result,
+        fileName: file.name,
+      });
+      setStatus("", "");
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
+    setStatus("", "");
 
-      reader.onload = function (e) {
-        setVideo({
-          video: URL.createObjectURL(file),
-          base64String: e.target.result,
-        });
-      };
+    const selectedMedia = image || video;
+    if (!selectedMedia) {
+      setStatus("error", "Please select a photo or video before sharing.");
+      return;
+    }
 
-      reader.readAsDataURL(file);
-      // event.target.value = null;
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      setStatus("error", "Session expired. Please log in again.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("images", selectedMedia.base64String);
+      formData.append("name", localStorage.getItem("name") || "FSM User");
+      formData.append("userId", userId);
+      formData.append("desc", desc.trim());
+      formData.append("likes", 0);
+      formData.append("liked", false);
+
+      const uploadPath = video ? "/api/post/upload/video" : "/api/post/upload";
+      const response = await apiFetch(uploadPath, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let errorText = "Failed to upload post.";
+        try {
+          errorText = await response.text();
+        } catch (_) {}
+        setStatus("error", errorText);
+        return;
+      }
+
+      setStatus("success", "Post shared successfully.");
+      resetComposer();
+
+      window.dispatchEvent(new Event("post:created"));
+      if (typeof onPostCreated === "function") {
+        onPostCreated();
+      }
+    } catch (error) {
+      setStatus("error", "Unable to share right now. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="PostShare">
-      <img src={localStorage.getItem("image")} alt="" />
+    <form className={`PostShare ${isCompact ? "PostShareCompact" : ""}`} onSubmit={handleSubmit}>
+      <img src={localStorage.getItem("image") || ProfileImage} alt="profile" />
       <div>
         <div className="InputContainer">
           <input
-            placeholder="What's happening ?!"
+            placeholder="What's happening?"
             type="text"
-            id="files"
-            name="file"
             className="input"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
@@ -112,26 +135,26 @@ const PostShare = () => {
         </div>
 
         <div className="postOptions">
-          <div
-            className="option"
-            style={{ color: "var(--photo)" }}
+          <button
+            type="button"
+            className="option optionPhoto"
             onClick={() => imageRef.current && imageRef.current.click()}
           >
             <UilScenery style={{ marginRight: 5 }} />
             Photo
-          </div>
+          </button>
 
-          <div
-            className="option"
-            style={{ color: "var(--video)" }}
+          <button
+            type="button"
+            className="option optionVideo"
             onClick={() => videoRef.current && videoRef.current.click()}
           >
             <UilPlayCircle style={{ marginRight: 5 }} />
             Video
-          </div>
+          </button>
 
-          <button className="button-share" onClick={postImage}>
-            Share
+          <button type="submit" className="button-share" disabled={isSubmitting}>
+            {isSubmitting ? "Uploading..." : "Share Post"}
           </button>
 
           <div style={{ display: "none" }}>
@@ -152,26 +175,41 @@ const PostShare = () => {
           </div>
         </div>
 
+        {(image || video) && (
+          <div className="selectedMediaPill">
+            <span>{image ? image.fileName : video.fileName}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setImage(null);
+                setVideo(null);
+                setStatus("", "");
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        )}
+
         {image && (
           <div className="previewImage">
             <UilTimes onClick={() => setImage(null)} />
-            <img src={image.image} alt="" />
+            <img src={image.previewUrl} alt="preview" />
           </div>
         )}
 
         {video && (
           <div className="previewImage">
-            <video
-              src={video.video}
-              controls
-              style={{ maxWidth: "100%", borderRadius: "0.5rem" }}
-            >
+            <UilTimes onClick={() => setVideo(null)} />
+            <video src={video.previewUrl} controls className="previewVideo">
               Your browser does not support the video tag.
             </video>
           </div>
         )}
+
+        {statusMessage ? <p className={`shareStatus ${statusType}`}>{statusMessage}</p> : null}
       </div>
-    </div>
+    </form>
   );
 };
 

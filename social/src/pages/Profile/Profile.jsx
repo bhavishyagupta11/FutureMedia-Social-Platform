@@ -4,7 +4,6 @@ import ProfileCard from "../../components/ProfileCard/ProfileCard";
 import ProfileLeft from '../../components/ProfileLeft/ProfileLeft'
 import RightSide from '../../components/RightSide/RightSide'
 import './Profile.css'
-import ProfileSide from '../../components/profileSide/ProfileSide'
 import { useNavigate } from 'react-router-dom'
 const Profile = () => {
 const navigate = useNavigate()
@@ -12,7 +11,7 @@ useEffect(() => {
 if (!localStorage.getItem("userId")) {
 navigate("/")
 }
-}, [])
+}, [navigate])
 return (
 <div className="Profile">
 <ProfileLeft />

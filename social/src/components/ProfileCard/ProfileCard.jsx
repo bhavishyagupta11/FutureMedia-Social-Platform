@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Cover from "../../img/cover.jpg";
+import ProfileImage from "../../img/profileImg.jpg";
 import "./ProfileCard.css";
 import { apiFetch } from "../../utils/api";
 
@@ -42,7 +43,7 @@ const ProfileCard = () => {
     <div className="ProfileCard">
       <div className="ProfileImages">
         <img src={Cover} alt="" />
-        <img src={localStorage.getItem("image")} alt="" />
+        <img src={localStorage.getItem("image") || ProfileImage} alt="" />
       </div>
 
       <div className="ProfileName">

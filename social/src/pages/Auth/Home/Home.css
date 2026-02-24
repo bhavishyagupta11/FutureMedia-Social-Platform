@@ -1,6 +1,14 @@
-.Home{
-position: relative;
-display: grid;
-    grid-template-columns: 18rem auto 20rem;
-gap: 1rem;
+.Home {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr) 20rem;
+  gap: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+  .Home {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

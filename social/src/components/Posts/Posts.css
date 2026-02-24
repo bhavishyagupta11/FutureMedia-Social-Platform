@@ -1,14 +1,50 @@
-.Posts{
-display: flex;
-    flex-direction: column;
-gap: 1rem;
+.Posts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
-.commentinput{
-width: 60%;
-    margin-left: 25%;
-    margin-right: auto;
-height: 30px;
-/* margin-left: 10%; */
-border: 1px solid rgb(4, 115, 143);
-    border-radius: 9px;
+
+.postsLoader {
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 14px;
+  border: 1px solid rgba(18, 86, 132, 0.1);
+  color: #4d6b83;
+  text-align: center;
+  padding: 1rem;
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.postAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.postName {
+  display: block;
+  font-weight: 700;
+  color: #1d3850;
+}
+
+.postUser {
+  display: block;
+  font-size: 0.82rem;
+  color: #5d7a90;
+}
+
+.postDesc {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #2e4b62;
+}
+
+.postLikes {
+  color: var(--gray);
+  font-size: 12px;
 }

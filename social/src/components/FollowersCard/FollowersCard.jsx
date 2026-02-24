@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./FollowersCard.css";
 import { apiFetch } from "../../utils/api";
+import ProfileImage from "../../img/profileImg.jpg";
 
 const FollowersCard = () => {
   const [users, setUsers] = useState([]);
@@ -82,7 +83,7 @@ const FollowersCard = () => {
               <div className="follower" key={follower._id}>
                 <div>
                   <img
-                    src={follower.img}
+                    src={follower.img || ProfileImage}
                     alt={follower.username}
                     className="followerImage"
                   />

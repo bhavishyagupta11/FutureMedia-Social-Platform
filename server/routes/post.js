@@ -51,6 +51,9 @@ try {
 const imageBlob = req.body.images;
 const imageName = `${req.body.name}`;
 const userId  = req.body.userId
+if (!imageBlob || !userId) {
+return res.status(400).send("Image and userId are required.");
+}
 // Create directory if it doesn't exist
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -71,7 +74,7 @@ imgPath: imagePath,
 name: imageName,
 format: "image",
 userId : userId,
-desc: req.body.desc,
+desc: req.body.desc || "",
 likes: req.body.likes,
 liked: req.body.liked
 });
@@ -90,6 +93,10 @@ try {
     console.log("Video")
 const imageBlob = req.body.images;
 const imageName = `${req.body.name}`;
+const userId = req.body.userId;
+if (!imageBlob || !userId) {
+return res.status(400).send("Video and userId are required.");
+}
 // Create directory if it doesn't exist
 const uploadDir = path.join(__dirname, 'uploads/video');
 if (!fs.existsSync(uploadDir)) {
@@ -109,10 +116,10 @@ const postdata = new postModel({
 imgPath: imagePath,
 name: imageName,
 format: "video",
-desc: req.body.desc,
+desc: req.body.desc || "",
 likes: req.body.likes,
 liked: req.body.liked,
-userId : req.body.userId
+userId : userId
 });
 await postdata.save();
     console.log('Image saved successfully:', imagePath);

@@ -1,38 +1,40 @@
-// import { Modal, useMantineTheme } from "@mantine/core";
-// import PostShare from "../PostShare/PostShare";
-// function ShareModal({ modalOpened, setModalOpened }) {
-// const theme = useMantineTheme();
-// return (
-// <Modal
-//       overlayColor={
-//         theme.colorScheme === "dark"
-// ? theme.colors.dark[9]
-// : theme.colors.gray[2]
-// }
-//       overlayOpacity={0.55}
-//       overlayBlur={3}
-//       size="55%"
-//       opened={modalOpened}
-//       onClose={() => setModalOpened(false)}
-// >
-// <PostShare/>
-// </Modal>
-// );
-// }
-// export default ShareModal;
-const ShareModal = ({ modalOpened, setModalOpened }) => {
+import React from "react";
+import PostShare from "../PostShare/PostShare";
+import "./ShareModal.css";
+
+const ShareModal = ({ modalOpened, setModalOpened, onPostCreated }) => {
   if (!modalOpened) return null;
 
   return (
-    <div
-      style={{
-        background: "white",
-        padding: "20px",
-        borderRadius: "10px",
-      }}
-    >
-      <h3>Share Modal Works</h3>
-      <button onClick={() => setModalOpened(false)}>Close</button>
+    <div className="shareModalOverlay" onClick={() => setModalOpened(false)}>
+      <div className="shareModalCard" onClick={(e) => e.stopPropagation()}>
+        <div className="shareModalHeader">
+          <h3>Create New Post</h3>
+          <button
+            type="button"
+            className="shareModalClose"
+            onClick={() => setModalOpened(false)}
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="shareModalTips">
+          <span>Choose post type:</span>
+          <span>Photo</span>
+          <span>Video</span>
+        </div>
+
+        <PostShare
+          isCompact={false}
+          onPostCreated={() => {
+            if (typeof onPostCreated === "function") {
+              onPostCreated();
+            }
+            setModalOpened(false);
+          }}
+        />
+      </div>
     </div>
   );
 };

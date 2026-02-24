@@ -2,6 +2,7 @@ import "./App.css";
 import { Auth, SignUp } from "./pages/Auth/Auth";
 import Home from "./pages/Auth/Home/Home";
 import Profile from "./pages/Profile/Profile";
+import Settings from "./pages/Settings/Settings";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import BirdLogo from "./img/fsm-bird.svg";
 
@@ -16,15 +17,6 @@ const AppFrame = ({ children }) => (
         <strong>FSM</strong>
         <span>Future Social Media</span>
       </div>
-    </div>
-
-    <div className="fsmFloat fsmFloatOne">
-      <img src={BirdLogo} alt="" />
-      <span>Sky stories</span>
-    </div>
-    <div className="fsmFloat fsmFloatTwo">
-      <img src={BirdLogo} alt="" />
-      <span>Bird mode</span>
     </div>
 
     {children}
@@ -67,6 +59,15 @@ function App() {
           element={
             <AppFrame>
               <SignUp />
+            </AppFrame>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <AppFrame>
+              <Settings />
             </AppFrame>
           }
         />

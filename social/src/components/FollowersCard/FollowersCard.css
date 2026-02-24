@@ -1,36 +1,51 @@
-.FollowersCard{
-width: 100%;
-    border-radius: 0.7rem;
-gap: 1rem;
-display: flex;
-    flex-direction: column;
-    font-size: 13px;
+.FollowersCard {
+  width: 100%;
+  border-radius: 1rem;
+  gap: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  background: var(--cardColor);
+  border: 1px solid rgba(17, 82, 128, 0.08);
+  padding: 1rem;
 }
-.follower{
-display: flex;
-    justify-content: space-between;
-    align-items: center;
+
+.FollowersCard h3 {
+  margin: 0 0 0.2rem;
 }
-.follower>div{
-display: flex;
-gap: 10px;
+
+.follower {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.followerImage{
-width: 3.2rem;
-height: 3.2rem;
-    border-radius: 50%;
+
+.follower > div {
+  display: flex;
+  gap: 10px;
 }
-.name{
-display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
+
+.followerImage {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
-.name>span:nth-of-type(1){
-    font-weight: bold;
+
+.name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
 }
-.fc-button{
-height: 2rem;
-    padding-left: 20px;
-    padding-right: 20px;
+
+.name > span:nth-of-type(1) {
+  font-weight: bold;
+}
+
+.fc-button {
+  height: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: 0.95rem;
 }

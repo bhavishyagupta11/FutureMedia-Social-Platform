@@ -10,7 +10,7 @@ required: true
 },
 desc: {
 type: String,
-required: true
+default: ""
 },
 format: {
 type: String,

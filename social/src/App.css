@@ -71,40 +71,6 @@
   color: #4f6f86;
 }
 
-.fsmFloat {
-  position: fixed;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  border-radius: 999px;
-  padding: 0.4rem 0.65rem;
-  background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(40, 125, 173, 0.18);
-  box-shadow: 0 8px 18px rgba(20, 59, 91, 0.14);
-  color: #2e6e93;
-  font-size: 0.75rem;
-  font-weight: 600;
-  pointer-events: none;
-}
-
-.fsmFloat img {
-  width: 17px;
-  height: 17px;
-}
-
-.fsmFloatOne {
-  right: 2.5rem;
-  top: 6rem;
-  animation: driftY 6.8s ease-in-out infinite;
-}
-
-.fsmFloatTwo {
-  right: 3.6rem;
-  bottom: 2rem;
-  animation: driftY 7.2s ease-in-out infinite reverse;
-}
-
 .button {
   display: flex;
   align-items: center;
@@ -148,9 +114,5 @@
     position: absolute;
     top: 0.4rem;
     left: 0.4rem;
-  }
-
-  .fsmFloat {
-    display: none;
   }
 }
