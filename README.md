@@ -251,7 +251,6 @@ CLOUDINARY_URL=
 * CDN media delivery
 * Redis caching
 * Queue‑based processing
-* Microservice‑ready boundaries
 
 ---
 
