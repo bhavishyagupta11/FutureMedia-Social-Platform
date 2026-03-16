@@ -4,7 +4,7 @@ import Home from "./pages/Auth/Home/Home";
 import Profile from "./pages/Profile/Profile";
 import Settings from "./pages/Settings/Settings";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import BirdLogo from "./img/fsm-bird.svg";
+import TechLogo from "./img/fsm-tech.svg";
 
 const AppFrame = ({ children }) => (
   <div className="App">
@@ -13,12 +13,14 @@ const AppFrame = ({ children }) => (
 
     <div className="appTopBar">
       <div className="fsmBrandBadge">
-        <img src={BirdLogo} alt="FSM bird logo" />
-        <div>
-          <strong>FSM</strong>
-          <span>Future Social Media</span>
+        <img src={TechLogo} alt="FSM tech logo" />
+        <div className="fsmBrandCopy">
+          <strong>Future Social Media</strong>
+          <span>Connected feeds. Faster signals. Smarter sharing.</span>
         </div>
+        <div className="fsmBrandTag">FSM</div>
       </div>
+      <div className="fsmBrandGlow" aria-hidden="true" />
     </div>
 
     <div className="appContent">{children}</div>

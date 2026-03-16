@@ -30,8 +30,11 @@
   position: relative;
   z-index: 2;
   display: flex;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 1.35rem;
+  max-width: 1400px;
+  min-height: 5.75rem;
 }
 
 .appContent {
@@ -50,34 +53,67 @@
 }
 
 .fsmBrandBadge {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.72rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(35, 135, 194, 0.2);
-  box-shadow: 0 10px 24px rgba(17, 44, 71, 0.18);
-  backdrop-filter: blur(12px);
+  gap: 0.9rem;
+  padding: 0.8rem 1rem;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 248, 255, 0.9));
+  border: 1px solid rgba(35, 135, 194, 0.18);
+  box-shadow: 0 14px 34px rgba(17, 44, 71, 0.12);
+  backdrop-filter: blur(14px);
 }
 
 .fsmBrandBadge img {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  flex-shrink: 0;
+}
+
+.fsmBrandCopy {
+  min-width: 0;
 }
 
 .fsmBrandBadge strong {
   display: block;
-  font-size: 0.85rem;
-  line-height: 1;
+  font-size: 1.08rem;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
 }
 
 .fsmBrandBadge span {
   display: block;
-  font-size: 0.64rem;
-  line-height: 1.2;
-  color: #4f6f86;
+  margin-top: 0.15rem;
+  font-size: 0.76rem;
+  line-height: 1.25;
+  color: #537188;
+}
+
+.fsmBrandTag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.2rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f3654, #1599de);
+  color: white;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.fsmBrandGlow {
+  position: absolute;
+  inset: auto;
+  width: 14rem;
+  height: 4rem;
+  background: rgba(71, 190, 240, 0.22);
+  filter: blur(36px);
+  z-index: -1;
 }
 
 .button {
@@ -120,6 +156,25 @@
   }
 
   .appTopBar {
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.8rem;
+    min-height: auto;
+  }
+
+  .fsmBrandBadge {
+    width: min(100%, 34rem);
+    padding: 0.7rem 0.85rem;
+  }
+
+  .fsmBrandBadge img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .fsmBrandBadge strong {
+    font-size: 0.98rem;
+  }
+
+  .fsmBrandBadge span {
+    font-size: 0.72rem;
   }
 }
