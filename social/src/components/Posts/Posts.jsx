@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./Posts.css";
 import "../Post/Post.css";
 import { PostsData } from "../../Data/PostsData";
@@ -45,7 +45,7 @@ const withDemoFallback = (realPosts) => {
   return [...normalizedRealPosts, ...demos];
 };
 
-const Posts = ({ refreshToken = 0 }) => {
+const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentDrafts, setCommentDrafts] = useState({});
@@ -53,8 +53,11 @@ const Posts = ({ refreshToken = 0 }) => {
   const [pendingActionId, setPendingActionId] = useState("");
   const [shareMessage, setShareMessage] = useState("");
 
-  const fetchPosts = async () => {
-    setLoading(true);
+  const fetchPosts = useCallback(async ({ showLoader = false } = {}) => {
+    if (showLoader) {
+      setLoading(true);
+    }
+
     try {
       const response = await apiFetch("/api/post/all");
       if (!response.ok) {
@@ -73,19 +76,35 @@ const Posts = ({ refreshToken = 0 }) => {
       console.error("Failed to fetch posts:", error);
       setPosts(withDemoFallback([]));
     } finally {
-      setLoading(false);
+      if (showLoader) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchPosts();
-  }, [refreshToken]);
+    fetchPosts({ showLoader: true });
+  }, [fetchPosts]);
 
   useEffect(() => {
-    const handlePostCreated = () => fetchPosts();
+    const handlePostCreated = (event) => {
+      const createdPost = event?.detail?.post;
+
+      if (createdPost && createdPost._id) {
+        const normalizedCreatedPost = normalizePost(createdPost);
+        setPosts((current) => {
+          const withoutSamePost = current.filter((item) => item._id !== normalizedCreatedPost._id);
+          return [normalizedCreatedPost, ...withoutSamePost];
+        });
+        return;
+      }
+
+      fetchPosts();
+    };
+
     window.addEventListener("post:created", handlePostCreated);
     return () => window.removeEventListener("post:created", handlePostCreated);
-  }, []);
+  }, [fetchPosts]);
 
   const handleLikes = async (post) => {
     const userId = getSessionUserId();

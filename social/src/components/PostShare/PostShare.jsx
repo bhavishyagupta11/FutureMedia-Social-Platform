@@ -106,12 +106,18 @@ const PostShare = ({ onPostCreated, isCompact = true }) => {
         return;
       }
 
+      const createdPost = await response.json().catch(() => null);
+
       setStatus("success", "Post shared successfully.");
       resetComposer();
 
-      window.dispatchEvent(new Event("post:created"));
+      window.dispatchEvent(
+        new CustomEvent("post:created", {
+          detail: { post: createdPost },
+        })
+      );
       if (typeof onPostCreated === "function") {
-        onPostCreated();
+        onPostCreated(createdPost);
       }
     } catch (error) {
       setStatus("error", "Unable to share right now. Please try again.");

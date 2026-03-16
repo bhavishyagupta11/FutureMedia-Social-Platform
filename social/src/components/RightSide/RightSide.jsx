@@ -19,7 +19,7 @@ const RightSide = () => {
       <ShareModal
         modalOpened={modalOpened}
         setModalOpened={setModalOpened}
-        onPostCreated={() => window.dispatchEvent(new Event("post:created"))}
+        onPostCreated={() => setModalOpened(false)}
       />
       <TrendCard />
     </div>
