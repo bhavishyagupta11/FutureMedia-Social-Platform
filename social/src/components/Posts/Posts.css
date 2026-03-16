@@ -55,6 +55,19 @@
   background: #0f1c28;
 }
 
+.postMediaFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, rgba(231, 242, 250, 0.95), rgba(214, 232, 245, 0.9));
+  color: #49677f;
+  font-weight: 600;
+  text-align: center;
+  padding: 1rem;
+}
+
 .postMetaRow {
   display: flex;
   justify-content: space-between;

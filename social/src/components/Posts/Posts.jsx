@@ -24,7 +24,7 @@ const normalizePost = (post) => {
     comments: Array.isArray(source.comments) ? source.comments : [],
     format: source.format || "text",
     imageUrl: source.imageUrl
-      ? source.imageUrl.startsWith("/uploads")
+      ? source.imageUrl.startsWith("/")
         ? `${process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"}${source.imageUrl}`
         : source.imageUrl
       : "",
@@ -53,6 +53,7 @@ const Posts = () => {
   const [pendingActionId, setPendingActionId] = useState("");
   const [shareMessage, setShareMessage] = useState("");
   const [commentMessage, setCommentMessage] = useState("");
+  const [brokenMediaIds, setBrokenMediaIds] = useState({});
 
   const showCommentMessage = (message) => {
     setCommentMessage(message);
@@ -274,6 +275,7 @@ const Posts = () => {
         const isLikedByUser = post.likedUser?.includes(getSessionUserId());
         const isCommentOpen = Boolean(openComments[post._id]);
         const commentCount = post.comments?.length || 0;
+        const hasBrokenMedia = Boolean(brokenMediaIds[post._id]);
 
         return (
           <div className="Post" key={post._id}>
@@ -285,11 +287,24 @@ const Posts = () => {
               </div>
             </div>
 
-            {post.format === "image" && post.imageUrl ? <img src={post.imageUrl} alt="post" /> : null}
-            {post.format === "video" && post.imageUrl ? (
+            {post.format === "image" && post.imageUrl && !hasBrokenMedia ? (
+              <img
+                src={post.imageUrl}
+                alt="post"
+                onError={() =>
+                  setBrokenMediaIds((current) => ({ ...current, [post._id]: true }))
+                }
+              />
+            ) : null}
+            {post.format === "video" && post.imageUrl && !hasBrokenMedia ? (
               <video src={post.imageUrl} controls className="postVideo">
                 Your browser does not support the video tag.
               </video>
+            ) : null}
+            {post.imageUrl && hasBrokenMedia ? (
+              <div className="postMediaFallback">
+                This media could not be loaded.
+              </div>
             ) : null}
 
             {post.desc ? <p className="postDesc">{post.desc}</p> : null}

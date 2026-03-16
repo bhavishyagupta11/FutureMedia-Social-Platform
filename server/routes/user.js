@@ -1,6 +1,4 @@
 const express = require("express");
-const path = require("path");
-
 const User = require("./../models/userModel");
 const Post = require("../models/postModels");
 const { hashPassword, verifyPassword, needsPasswordUpgrade } = require("../utils/password");
@@ -12,24 +10,6 @@ const normalizeUsername = (username) => String(username || "").trim().toLowerCas
 const normalizeName = (name) => String(name || "").trim();
 const normalizeOptional = (value) => String(value || "").trim();
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const uploadsSeparator = `${path.sep}routes${path.sep}uploads`;
-
-const buildSearchMediaUrl = (imgPath, format) => {
-  if (!imgPath) {
-    return "";
-  }
-
-  const fileName = path.basename(imgPath);
-  const isVideo = format === "video";
-  const isLegacyUpload = imgPath.includes(uploadsSeparator);
-
-  if (isLegacyUpload) {
-    return `/legacy-uploads/${isVideo ? "video/" : ""}${fileName}`;
-  }
-
-  return `/uploads/${isVideo ? "video" : "image"}/${fileName}`;
-};
-
 const findUserByUsernameCaseInsensitive = async (username) =>
   User.findOne({
     username: {
@@ -185,7 +165,7 @@ router.get("/search", async (req, res) => {
         desc: post.desc || "",
         name: post.name || "",
         format: post.format || "image",
-        imageUrl: buildSearchMediaUrl(post.imgPath, post.format),
+        imageUrl: post.imgPath ? `/api/post/media/${String(post._id)}` : "",
         user: post.userId
           ? {
               _id: String(post.userId._id),

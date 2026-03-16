@@ -39,6 +39,10 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    mimeType: {
+      type: String,
+      default: "",
+    },
     likes: {
       type: Number,
       default: 0,

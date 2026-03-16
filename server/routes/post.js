@@ -35,18 +35,50 @@ const createFileFromBase64 = async (base64Value, directoryPath, namePrefix) => {
   return filePath;
 };
 
+const extractMimeType = (base64Value, format) => {
+  const [meta = ""] = String(base64Value || "").split(";base64,");
+  const mimeMatch = meta.match(/^data:([^;]+)$/);
+  if (mimeMatch?.[1]) {
+    return mimeMatch[1];
+  }
+
+  return format === "video" ? "video/mp4" : "image/jpeg";
+};
+
+const detectMimeTypeFromFile = async (filePath, format) => {
+  try {
+    const handle = await fs.open(filePath, "r");
+    const buffer = Buffer.alloc(16);
+    await handle.read(buffer, 0, 16, 0);
+    await handle.close();
+
+    if (buffer.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+      return "image/png";
+    }
+
+    if (buffer.slice(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) {
+      return "image/jpeg";
+    }
+
+    if (buffer.slice(0, 6).toString("ascii") === "GIF87a" || buffer.slice(0, 6).toString("ascii") === "GIF89a") {
+      return "image/gif";
+    }
+
+    if (buffer.slice(0, 4).toString("ascii") === "RIFF" && buffer.slice(8, 12).toString("ascii") === "WEBP") {
+      return "image/webp";
+    }
+
+    if (buffer.slice(4, 8).toString("ascii") === "ftyp") {
+      return format === "video" ? "video/mp4" : "application/octet-stream";
+    }
+  } catch (_) {}
+
+  return format === "video" ? "video/mp4" : "image/jpeg";
+};
+
 const mapPostForClient = (post) => {
   const source = typeof post.toObject === "function" ? post.toObject() : post;
   const user = source.userId && typeof source.userId === "object" ? source.userId : null;
-  const fileName = source.imgPath ? path.basename(source.imgPath) : "";
-  const isVideo = source.format === "video";
-  const legacyUploadsPath = `${path.sep}routes${path.sep}uploads`;
-  const usesLegacyUploads = typeof source.imgPath === "string" && source.imgPath.includes(legacyUploadsPath);
-  const mediaFolder = isVideo ? "video" : "image";
-  const mediaBasePath = usesLegacyUploads
-    ? `/legacy-uploads/${isVideo ? "video/" : ""}${fileName}`
-    : `/uploads/${mediaFolder}/${fileName}`;
-
   return {
     _id: String(source._id),
     name:
@@ -69,7 +101,7 @@ const mapPostForClient = (post) => {
         }))
       : [],
     format: source.format || "image",
-    imageUrl: fileName ? mediaBasePath : "",
+    imageUrl: source.imgPath ? `/api/post/media/${String(source._id)}` : "",
     avatar: user?.img || "",
     userId: user?._id ? String(user._id) : String(source.userId || ""),
     createdAt: source.createdAt || null,
@@ -106,6 +138,25 @@ app.get("/all", async (req, res) => {
   }
 });
 
+app.get("/media/:postId", async (req, res) => {
+  try {
+    const post = await postModel.findById(req.params.postId);
+    if (!post || !post.imgPath) {
+      return res.status(404).send("Media not found.");
+    }
+
+    const resolvedPath = path.resolve(post.imgPath);
+    const mimeType = post.mimeType || (await detectMimeTypeFromFile(resolvedPath, post.format));
+
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.type(mimeType);
+    return res.sendFile(resolvedPath);
+  } catch (err) {
+    console.log("Error ", err);
+    return res.status(500).send({ message: err.message || err });
+  }
+});
+
 app.post("/upload", async (req, res) => {
   try {
     const imageBlob = req.body.images;
@@ -129,6 +180,7 @@ app.post("/upload", async (req, res) => {
       imgPath: imagePath,
       name: user.displayName || imageName,
       format: "image",
+      mimeType: extractMimeType(imageBlob, "image"),
       userId,
       desc: req.body.desc || "",
       likes: Number(req.body.likes || 0),
@@ -166,6 +218,7 @@ app.post("/upload/video", async (req, res) => {
       imgPath: videoPath,
       name: user.displayName || imageName,
       format: "video",
+      mimeType: extractMimeType(videoBlob, "video"),
       desc: req.body.desc || "",
       likes: Number(req.body.likes || 0),
       liked: Boolean(req.body.liked),
