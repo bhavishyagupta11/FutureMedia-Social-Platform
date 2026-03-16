@@ -52,6 +52,12 @@ const Posts = () => {
   const [openComments, setOpenComments] = useState({});
   const [pendingActionId, setPendingActionId] = useState("");
   const [shareMessage, setShareMessage] = useState("");
+  const [commentMessage, setCommentMessage] = useState("");
+
+  const showCommentMessage = (message) => {
+    setCommentMessage(message);
+    window.setTimeout(() => setCommentMessage(""), 2200);
+  };
 
   const fetchPosts = useCallback(async ({ showLoader = false } = {}) => {
     if (showLoader) {
@@ -155,6 +161,38 @@ const Posts = () => {
   const handleCommentSubmit = async (post) => {
     const text = (commentDrafts[post._id] || "").trim();
     if (!text) {
+      showCommentMessage("Write something before posting a comment.");
+      return;
+    }
+
+    const userId = getSessionUserId();
+
+    if (!userId) {
+      showCommentMessage("Please log in again before commenting.");
+      return;
+    }
+
+    if (post.isDemo || String(post._id).startsWith("demo-")) {
+      setPosts((current) =>
+        current.map((item) =>
+          item._id === post._id
+            ? {
+                ...item,
+                comments: [
+                  ...(Array.isArray(item.comments) ? item.comments : []),
+                  {
+                    _id: `local-comment-${Date.now()}`,
+                    userName: "You",
+                    text,
+                  },
+                ],
+              }
+            : item
+        )
+      );
+      setCommentDrafts((current) => ({ ...current, [post._id]: "" }));
+      setOpenComments((current) => ({ ...current, [post._id]: true }));
+      showCommentMessage("Comment added.");
       return;
     }
 
@@ -173,6 +211,8 @@ const Posts = () => {
       });
 
       if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        showCommentMessage(payload?.error || "Unable to post comment right now.");
         return;
       }
 
@@ -189,8 +229,10 @@ const Posts = () => {
       );
       setCommentDrafts((current) => ({ ...current, [post._id]: "" }));
       setOpenComments((current) => ({ ...current, [post._id]: true }));
+      showCommentMessage("Comment posted.");
     } catch (error) {
       console.error("Failed to add comment:", error);
+      showCommentMessage("Unable to post comment right now.");
     } finally {
       setPendingActionId("");
     }
@@ -227,6 +269,7 @@ const Posts = () => {
   return (
     <div className="Posts">
       {shareMessage ? <div className="postsLoader">{shareMessage}</div> : null}
+      {commentMessage ? <div className="postsLoader">{commentMessage}</div> : null}
       {posts.map((post) => {
         const isLikedByUser = post.likedUser?.includes(getSessionUserId());
         const isCommentOpen = Boolean(openComments[post._id]);
@@ -292,6 +335,12 @@ const Posts = () => {
                       }))
                     }
                     placeholder="Write a comment..."
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        handleCommentSubmit(post);
+                      }
+                    }}
                   />
                   <button
                     type="button"
