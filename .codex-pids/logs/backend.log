@@ -1,0 +1,7 @@
+
+> server@1.0.0 start
+> node server.js
+
+[dotenv@17.2.3] injecting env (2) from .env -- tip: ≡ƒ¢á∩╕Å  run anywhere with `dotenvx run -- yourcommand`
+Server running on http://localhost:8080
+MongoDB Atlas connected successfully
