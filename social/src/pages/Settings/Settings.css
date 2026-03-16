@@ -2,9 +2,10 @@
   position: relative;
   display: grid;
   grid-template-columns: 18rem minmax(0, 1fr) 20rem;
-  gap: 1rem;
+  gap: 1.5rem;
   max-width: 1400px;
   margin: 0 auto;
+  align-items: start;
 }
 
 .SettingsCenter {
