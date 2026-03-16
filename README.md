@@ -1,70 +1,301 @@
-# Getting Started with Create React App
+# Future — Social Media Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, AI‑augmented social media platform focused on meaningful connections, intelligent content discovery, and creator empowerment. Built with a scalable full‑stack architecture and designed for extensibility, performance, and privacy.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## ✨ Overview
 
-### `npm start`
+**Future** is a next‑generation social platform that blends classic social features (profiles, posts, messaging, communities) with AI‑driven personalization, smart moderation, and creator tools. The goal is to create a safe, engaging, and customizable digital social space.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🚀 Core Features
 
-### `npm test`
+### 👤 User & Profiles
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* Secure authentication (JWT / OAuth)
+* Rich user profiles (bio, interests, links, media)
+* Follow / followers system
+* Privacy & visibility controls
+* Profile analytics (views, engagement)
 
-### `npm run build`
+### 📝 Posts & Content
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* Text, image, video, and link posts
+* Rich editor with formatting & hashtags
+* Comments & nested replies
+* Likes, saves, and shares
+* Content visibility (public, followers, private)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 🤝 Social Graph
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+* Follow / unfollow
+* Suggested connections (AI‑based)
+* Mutual connections display
+* Interest‑based discovery
 
-### `npm run eject`
+### 💬 Messaging & Chat
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+* Real‑time private messaging
+* Group chats
+* Media sharing
+* Read receipts & typing indicators
+* End‑to‑end encryption ready
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 🧭 Feed & Discovery
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+* Personalized feed (AI ranking)
+* Trending topics & hashtags
+* Explore page (creators, communities)
+* Content recommendations
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 🏘 Communities
 
-## Learn More
+* Create/join communities
+* Roles (admin, mod, member)
+* Community posts & discussions
+* Moderation tools
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 🎨 Creator Tools
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+* Creator profiles
+* Audience analytics
+* Post scheduling
+* Content insights
+* Monetization ready architecture
 
-### Code Splitting
+### 🛡 Moderation & Safety
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+* Report & block system
+* AI content moderation hooks
+* Admin dashboards
+* Abuse detection signals
 
-### Analyzing the Bundle Size
+### 🔔 Notifications
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+* Likes, comments, follows
+* Mentions & replies
+* Messages
+* System alerts
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 🧠 AI Capabilities (Planned / Integrated)
 
-### Advanced Configuration
+* Smart feed ranking
+* Toxicity & spam detection
+* Content recommendations
+* Auto‑tagging & hashtag suggestions
+* Caption assistance
+* Interest modeling
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+---
 
-### Deployment
+## 🏗 Architecture
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Frontend
 
-### `npm run build` fails to minify
+* React / Next.js
+* TailwindCSS
+* Responsive & accessible UI
+* Component‑driven architecture
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Backend
+
+* Node.js / Express
+* REST / GraphQL APIs
+* Authentication middleware
+* Scalable service layers
+
+### Database
+
+* MongoDB (primary social data)
+* Redis (cache, sessions, realtime)
+* Search index (Elasticsearch optional)
+
+### Realtime
+
+* WebSockets / Socket.io
+* Presence & messaging
+* Live notifications
+
+### Media Storage
+
+* Cloud storage (AWS S3 / Cloudinary)
+* CDN delivery
+* Image/video optimization
+
+---
+
+## 📂 Project Structure
+
+```
+Future/
+ ├── client/            # Frontend app
+ │   ├── components/
+ │   ├── pages/
+ │   ├── hooks/
+ │   └── utils/
+ │
+ ├── server/            # Backend API
+ │   ├── controllers/
+ │   ├── models/
+ │   ├── routes/
+ │   ├── middleware/
+ │   └── services/
+ │
+ ├── realtime/          # Socket services
+ ├── shared/            # Types & constants
+ └── docs/
+```
+
+---
+
+## 🔑 Key Modules
+
+* Auth Service
+* User Service
+* Post Service
+* Feed Service
+* Messaging Service
+* Notification Service
+* Moderation Service
+* Media Service
+
+---
+
+## ⚙️ Setup & Installation
+
+### 1. Clone
+
+```
+git clone https://github.com/yourusername/future-social.git
+cd future-social
+```
+
+### 2. Backend
+
+```
+cd server
+npm install
+npm run dev
+```
+
+### 3. Frontend
+
+```
+cd client
+npm install
+npm run dev
+```
+
+### 4. Environment Variables
+
+Create `.env` in `/server`:
+
+```
+PORT=5000
+MONGO_URI=
+JWT_SECRET=
+REDIS_URL=
+CLOUDINARY_URL=
+```
+
+---
+
+## 📡 API Overview
+
+### Auth
+
+* POST /auth/register
+* POST /auth/login
+* GET /auth/me
+
+### Users
+
+* GET /users/:id
+* PUT /users/:id
+* POST /users/:id/follow
+
+### Posts
+
+* POST /posts
+* GET /posts/feed
+* GET /posts/:id
+* POST /posts/:id/like
+* POST /posts/:id/comment
+
+### Messages
+
+* GET /chats
+* POST /messages
+
+---
+
+## 🔒 Security
+
+* JWT authentication
+* Rate limiting
+* Input validation
+* XSS & CSRF protection
+* Secure media uploads
+* Privacy controls
+
+---
+
+## 📈 Scalability Strategy
+
+* Stateless API
+* Horizontal scaling
+* CDN media delivery
+* Redis caching
+* Queue‑based processing
+
+---
+
+## 🧪 Testing
+
+* Unit tests (services)
+* API tests
+* Integration tests
+* Realtime tests
+
+---
+
+## 🗺 Roadmap
+
+* [ ] AI feed ranking v1
+* [ ] Creator monetization
+* [ ] Community moderation AI
+* [ ] Live streaming
+* [ ] Stories / ephemeral posts
+* [ ] Mobile app
+* [ ] Federated protocol support
+
+---
+
+## 🤝 Contributing
+
+1. Fork repo
+2. Create feature branch
+3. Commit changes
+4. Open PR
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## 👨‍💻 Author
+
+Bhavishya Gupta
+
+---
+
+## 💡 Vision
+
+To build a healthier, smarter, and more meaningful social network powered by AI and human creativity.
