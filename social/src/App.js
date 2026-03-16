@@ -11,15 +11,17 @@ const AppFrame = ({ children }) => (
     <div className="blur" style={{ top: "-18%", right: "0" }} />
     <div className="blur" style={{ top: "36%", left: "-8rem" }} />
 
-    <div className="fsmBrandBadge">
-      <img src={BirdLogo} alt="FSM bird logo" />
-      <div>
-        <strong>FSM</strong>
-        <span>Future Social Media</span>
+    <div className="appTopBar">
+      <div className="fsmBrandBadge">
+        <img src={BirdLogo} alt="FSM bird logo" />
+        <div>
+          <strong>FSM</strong>
+          <span>Future Social Media</span>
+        </div>
       </div>
     </div>
 
-    {children}
+    <div className="appContent">{children}</div>
   </div>
 );
 

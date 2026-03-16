@@ -26,6 +26,19 @@
     linear-gradient(140deg, #f5fbff 0%, #edf4ff 42%, #f1f8ff 100%);
 }
 
+.appTopBar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.appContent {
+  position: relative;
+  z-index: 1;
+}
+
 .blur {
   position: absolute;
   width: 25rem;
@@ -37,10 +50,6 @@
 }
 
 .fsmBrandBadge {
-  position: fixed;
-  top: 0.95rem;
-  left: 0.95rem;
-  z-index: 20;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -110,9 +119,7 @@
     padding: 0.7rem;
   }
 
-  .fsmBrandBadge {
-    position: absolute;
-    top: 0.4rem;
-    left: 0.4rem;
+  .appTopBar {
+    margin-bottom: 0.7rem;
   }
 }
