@@ -1,6 +1,5 @@
 import React from "react";
 import ProfileCard from "../ProfileCard/ProfileCard";
-import LogoSearch from "../LogoSearch/LogoSearch";
 import { UilSetting } from "@iconscout/react-unicons";
 import HomeIcon from "@mui/icons-material/Home";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -19,7 +18,6 @@ const ProfileSide = () => {
 
   return (
     <div className="ProfileSide">
-      <LogoSearch />
       <ProfileCard />
       <div className="Menu">
         <NavLink to="/home" className={({ isActive }) => `menu-link ${isActive ? "active" : ""}`}>

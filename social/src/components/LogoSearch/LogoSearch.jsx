@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
-import Logo from "../../img/logo.png";
 import ProfileImage from "../../img/profileImg.jpg";
 import "./LogoSearch.css";
 import { apiFetch } from "../../utils/api";
@@ -75,9 +74,16 @@ const LogoSearch = () => {
   return (
     <div className="LogoSearch">
       <div className="SearchBarCard">
-        <div className="LogoRow">
-          <img src={Logo} alt="FSM logo" className="brandLogo" />
-
+        <div className="searchHeader">
+          <div className="searchHeading">
+            <div className="searchBadge" aria-hidden="true">
+              <SearchIcon fontSize="small" />
+            </div>
+            <div>
+              <strong>Search</strong>
+              <span>Find people and posts fast</span>
+            </div>
+          </div>
           <div className="Search">
             <input
               type="text"
