@@ -116,6 +116,28 @@
   color: #29475f;
 }
 
+.commentItemTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.commentDeleteButton {
+  border: 0;
+  background: transparent;
+  color: #b45059;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.82rem;
+}
+
+.commentDeleteButton:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .emptyComments {
   color: #5f7b91;
   font-size: 0.9rem;

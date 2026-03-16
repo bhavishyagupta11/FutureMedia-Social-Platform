@@ -192,4 +192,37 @@ router.post("/comment", async (req, res) => {
   }
 });
 
+router.delete("/comment/:postId/:commentId", async (req, res) => {
+  try {
+    const { postId, commentId } = req.params;
+    const userId = req.body?.userId || req.query?.userId;
+
+    if (!isValidId(postId) || !isValidId(commentId) || !isValidId(userId)) {
+      return res.status(400).json({ error: "Valid post id, comment id, and userId are required" });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const comment = post.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    if (String(comment.userId) !== String(userId)) {
+      return res.status(403).json({ error: "You can only remove your own comments" });
+    }
+
+    comment.deleteOne();
+    await post.save();
+
+    return res.status(200).json(post);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;

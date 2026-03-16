@@ -54,6 +54,7 @@ const Posts = () => {
   const [shareMessage, setShareMessage] = useState("");
   const [commentMessage, setCommentMessage] = useState("");
   const [brokenMediaIds, setBrokenMediaIds] = useState({});
+  const currentUserId = getSessionUserId();
 
   const showCommentMessage = (message) => {
     setCommentMessage(message);
@@ -183,6 +184,7 @@ const Posts = () => {
                   ...(Array.isArray(item.comments) ? item.comments : []),
                   {
                     _id: `local-comment-${Date.now()}`,
+                    userId,
                     userName: "You",
                     text,
                   },
@@ -239,6 +241,67 @@ const Posts = () => {
     }
   };
 
+  const handleCommentDelete = async (post, comment) => {
+    if (!comment?._id) {
+      return;
+    }
+
+    if (String(comment._id).startsWith("local-comment-")) {
+      setPosts((current) =>
+        current.map((item) =>
+          item._id === post._id
+            ? {
+                ...item,
+                comments: (item.comments || []).filter((entry) => entry._id !== comment._id),
+              }
+            : item
+        )
+      );
+      showCommentMessage("Comment removed.");
+      return;
+    }
+
+    try {
+      setPendingActionId(`delete-comment-${comment._id}`);
+      const response = await apiFetch(
+        `/api/profile/comment/${post._id}/${comment._id}?userId=${encodeURIComponent(currentUserId)}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: currentUserId,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        showCommentMessage(payload?.error || "Unable to remove comment right now.");
+        return;
+      }
+
+      const updatedPost = await response.json();
+      setPosts((current) =>
+        current.map((item) =>
+          item._id === post._id
+            ? {
+                ...item,
+                comments: Array.isArray(updatedPost.comments) ? updatedPost.comments : item.comments,
+              }
+            : item
+        )
+      );
+      showCommentMessage("Comment removed.");
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      showCommentMessage("Unable to remove comment right now.");
+    } finally {
+      setPendingActionId("");
+    }
+  };
+
   const handleShare = async (post) => {
     const shareText = `Check out ${post.name}'s post on FSM: ${post.desc || "New post"} `;
 
@@ -272,7 +335,7 @@ const Posts = () => {
       {shareMessage ? <div className="postsLoader">{shareMessage}</div> : null}
       {commentMessage ? <div className="postsLoader">{commentMessage}</div> : null}
       {posts.map((post) => {
-        const isLikedByUser = post.likedUser?.includes(getSessionUserId());
+        const isLikedByUser = post.likedUser?.includes(currentUserId);
         const isCommentOpen = Boolean(openComments[post._id]);
         const commentCount = post.comments?.length || 0;
         const hasBrokenMedia = Boolean(brokenMediaIds[post._id]);
@@ -371,7 +434,20 @@ const Posts = () => {
                   <div className="commentList">
                     {post.comments.map((comment) => (
                       <div className="commentItem" key={comment._id}>
-                        <strong>{comment.userName}</strong>
+                        <div className="commentItemTop">
+                          <strong>{comment.userName}</strong>
+                          {String(comment.userId || "") === String(currentUserId) ||
+                          String(comment._id).startsWith("local-comment-") ? (
+                            <button
+                              type="button"
+                              className="commentDeleteButton"
+                              disabled={pendingActionId === `delete-comment-${comment._id}`}
+                              onClick={() => handleCommentDelete(post, comment)}
+                            >
+                              {pendingActionId === `delete-comment-${comment._id}` ? "Removing..." : "Remove"}
+                            </button>
+                          ) : null}
+                        </div>
                         <span>{comment.text}</span>
                       </div>
                     ))}
