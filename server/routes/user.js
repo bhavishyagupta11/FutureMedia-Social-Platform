@@ -1,6 +1,8 @@
 const express = require("express");
+const path = require("path");
 
 const User = require("./../models/userModel");
+const Post = require("../models/postModels");
 const { hashPassword, verifyPassword, needsPasswordUpgrade } = require("../utils/password");
 const { mapUserToPublic } = require("../utils/userMapper");
 
@@ -10,6 +12,23 @@ const normalizeUsername = (username) => String(username || "").trim().toLowerCas
 const normalizeName = (name) => String(name || "").trim();
 const normalizeOptional = (value) => String(value || "").trim();
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const uploadsSeparator = `${path.sep}routes${path.sep}uploads`;
+
+const buildSearchMediaUrl = (imgPath, format) => {
+  if (!imgPath) {
+    return "";
+  }
+
+  const fileName = path.basename(imgPath);
+  const isVideo = format === "video";
+  const isLegacyUpload = imgPath.includes(uploadsSeparator);
+
+  if (isLegacyUpload) {
+    return `/legacy-uploads/${isVideo ? "video/" : ""}${fileName}`;
+  }
+
+  return `/uploads/${isVideo ? "video" : "image"}/${fileName}`;
+};
 
 const findUserByUsernameCaseInsensitive = async (username) =>
   User.findOne({
@@ -124,6 +143,61 @@ router.get("/all", async (req, res) => {
   try {
     const users = await User.find();
     return res.status(200).json(users.map(mapUserToPublic));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/search", async (req, res) => {
+  try {
+    const query = normalizeOptional(req.query.q);
+    if (query.length < 2) {
+      return res.status(200).json({ users: [], posts: [] });
+    }
+
+    const regex = new RegExp(escapeRegex(query), "i");
+
+    const [users, posts] = await Promise.all([
+      User.find({
+        $or: [
+          { firstName: regex },
+          { lastName: regex },
+          { displayName: regex },
+          { username: regex },
+          { bio: regex },
+        ],
+      })
+        .sort({ updatedAt: -1 })
+        .limit(6),
+      Post.find({
+        $or: [{ desc: regex }, { name: regex }],
+      })
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .populate("userId", "displayName firstName lastName username img"),
+    ]);
+
+    return res.status(200).json({
+      users: users.map(mapUserToPublic),
+      posts: posts.map((post) => ({
+        _id: String(post._id),
+        desc: post.desc || "",
+        name: post.name || "",
+        format: post.format || "image",
+        imageUrl: buildSearchMediaUrl(post.imgPath, post.format),
+        user: post.userId
+          ? {
+              _id: String(post.userId._id),
+              displayName:
+                post.userId.displayName ||
+                `${post.userId.firstName || ""} ${post.userId.lastName || ""}`.trim(),
+              username: post.userId.username || "",
+              img: post.userId.img || "",
+            }
+          : null,
+      })),
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
