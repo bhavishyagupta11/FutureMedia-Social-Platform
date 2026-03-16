@@ -8,14 +8,11 @@ import Heart from "../../img/like.png";
 import NotLike from "../../img/notlike.png";
 import ProfileImage from "../../img/profileImg.jpg";
 import { apiFetch } from "../../utils/api";
+import { getSessionUserId } from "../../utils/session";
 
 const normalizePost = (post) => {
-  const source = post?._doc || post || {};
+  const source = post || {};
   const id = source._id || `demo-${Math.random().toString(36).slice(2, 10)}`;
-  const base64Url =
-    source.format === "image" && (source.image || source.postBase64)
-      ? `data:image/jpeg;base64,${source.image || source.postBase64}`
-      : "";
 
   return {
     _id: id,
@@ -24,11 +21,15 @@ const normalizePost = (post) => {
     desc: source.desc || "",
     likes: Number(source.likes || 0),
     likedUser: Array.isArray(source.likedUser) ? source.likedUser : [],
-    format: source.format || (base64Url ? "image" : "text"),
-    imageUrl: source.imageUrl || base64Url || "",
+    comments: Array.isArray(source.comments) ? source.comments : [],
+    format: source.format || "text",
+    imageUrl: source.imageUrl
+      ? source.imageUrl.startsWith("/uploads")
+        ? `${process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"}${source.imageUrl}`
+        : source.imageUrl
+      : "",
     avatar: source.avatar || source.img || ProfileImage,
     isDemo: Boolean(source.isDemo),
-    rawId: source._id || "",
   };
 };
 
@@ -47,6 +48,10 @@ const withDemoFallback = (realPosts) => {
 const Posts = ({ refreshToken = 0 }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [commentDrafts, setCommentDrafts] = useState({});
+  const [openComments, setOpenComments] = useState({});
+  const [pendingActionId, setPendingActionId] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -63,7 +68,7 @@ const Posts = ({ refreshToken = 0 }) => {
         return;
       }
 
-      setPosts(withDemoFallback(converted.map(normalizePost).reverse()));
+      setPosts(withDemoFallback(converted.map(normalizePost)));
     } catch (error) {
       console.error("Failed to fetch posts:", error);
       setPosts(withDemoFallback([]));
@@ -83,7 +88,9 @@ const Posts = ({ refreshToken = 0 }) => {
   }, []);
 
   const handleLikes = async (post) => {
-    if (post.isDemo || !post.rawId) {
+    const userId = getSessionUserId();
+
+    if (post.isDemo || String(post._id).startsWith("demo-")) {
       setPosts((current) =>
         current.map((item) =>
           item._id === post._id ? { ...item, likes: item.likes + 1 } : item
@@ -92,25 +99,101 @@ const Posts = ({ refreshToken = 0 }) => {
       return;
     }
 
-    const formData = {
-      _id: post.rawId,
-      userId: localStorage.getItem("userId"),
-    };
-
     try {
+      setPendingActionId(`like-${post._id}`);
       const response = await apiFetch("/api/profile/like", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          _id: post._id,
+          userId,
+        }),
       });
 
       if (response.ok) {
-        fetchPosts();
+        const updatedPost = await response.json();
+        setPosts((current) =>
+          current.map((item) =>
+            item._id === post._id
+              ? {
+                  ...item,
+                  likes: Number(updatedPost.likes || 0),
+                  likedUser: Array.isArray(updatedPost.likedUser) ? updatedPost.likedUser : [],
+                }
+              : item
+          )
+        );
       }
     } catch (error) {
       console.error("Failed to update like:", error);
+    } finally {
+      setPendingActionId("");
+    }
+  };
+
+  const handleCommentSubmit = async (post) => {
+    const text = (commentDrafts[post._id] || "").trim();
+    if (!text) {
+      return;
+    }
+
+    try {
+      setPendingActionId(`comment-${post._id}`);
+      const response = await apiFetch("/api/profile/comment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          _id: post._id,
+          userId: getSessionUserId(),
+          text,
+        }),
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const updatedPost = await response.json();
+      setPosts((current) =>
+        current.map((item) =>
+          item._id === post._id
+            ? {
+                ...item,
+                comments: Array.isArray(updatedPost.comments) ? updatedPost.comments : item.comments,
+              }
+            : item
+        )
+      );
+      setCommentDrafts((current) => ({ ...current, [post._id]: "" }));
+      setOpenComments((current) => ({ ...current, [post._id]: true }));
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    } finally {
+      setPendingActionId("");
+    }
+  };
+
+  const handleShare = async (post) => {
+    const shareText = `Check out ${post.name}'s post on FSM: ${post.desc || "New post"} `;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${post.name} on FSM`,
+          text: shareText.trim(),
+        });
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareText.trim());
+      }
+
+      setShareMessage(`Shared ${post.name}'s post.`);
+      window.setTimeout(() => setShareMessage(""), 1800);
+    } catch (error) {
+      console.error("Failed to share post:", error);
     }
   };
 
@@ -124,8 +207,11 @@ const Posts = ({ refreshToken = 0 }) => {
 
   return (
     <div className="Posts">
+      {shareMessage ? <div className="postsLoader">{shareMessage}</div> : null}
       {posts.map((post) => {
-        const isLikedByUser = post.likedUser?.includes(localStorage.getItem("userId"));
+        const isLikedByUser = post.likedUser?.includes(getSessionUserId());
+        const isCommentOpen = Boolean(openComments[post._id]);
+        const commentCount = post.comments?.length || 0;
 
         return (
           <div className="Post" key={post._id}>
@@ -138,6 +224,11 @@ const Posts = ({ refreshToken = 0 }) => {
             </div>
 
             {post.format === "image" && post.imageUrl ? <img src={post.imageUrl} alt="post" /> : null}
+            {post.format === "video" && post.imageUrl ? (
+              <video src={post.imageUrl} controls className="postVideo">
+                Your browser does not support the video tag.
+              </video>
+            ) : null}
 
             {post.desc ? <p className="postDesc">{post.desc}</p> : null}
 
@@ -148,11 +239,65 @@ const Posts = ({ refreshToken = 0 }) => {
                 style={{ cursor: "pointer" }}
                 onClick={() => handleLikes(post)}
               />
-              <img src={Comment} alt="comment" style={{ cursor: "pointer" }} />
-              <img src={Share} alt="share" style={{ cursor: "pointer" }} />
+              <img
+                src={Comment}
+                alt="comment"
+                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  setOpenComments((current) => ({ ...current, [post._id]: !isCommentOpen }))
+                }
+              />
+              <img
+                src={Share}
+                alt="share"
+                style={{ cursor: "pointer" }}
+                onClick={() => handleShare(post)}
+              />
             </div>
 
-            <span className="postLikes">{post.likes} likes</span>
+            <div className="postMetaRow">
+              <span className="postLikes">{post.likes} likes</span>
+              <span className="postLikes">{commentCount} comments</span>
+            </div>
+
+            {isCommentOpen ? (
+              <div className="postComments">
+                <div className="commentComposer">
+                  <input
+                    type="text"
+                    value={commentDrafts[post._id] || ""}
+                    onChange={(event) =>
+                      setCommentDrafts((current) => ({
+                        ...current,
+                        [post._id]: event.target.value,
+                      }))
+                    }
+                    placeholder="Write a comment..."
+                  />
+                  <button
+                    type="button"
+                    className="button commentButton"
+                    disabled={pendingActionId === `comment-${post._id}`}
+                    onClick={() => handleCommentSubmit(post)}
+                  >
+                    {pendingActionId === `comment-${post._id}` ? "Posting..." : "Comment"}
+                  </button>
+                </div>
+
+                {commentCount > 0 ? (
+                  <div className="commentList">
+                    {post.comments.map((comment) => (
+                      <div className="commentItem" key={comment._id}>
+                        <strong>{comment.userName}</strong>
+                        <span>{comment.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="emptyComments">No comments yet. Start the conversation.</div>
+                )}
+              </div>
+            ) : null}
           </div>
         );
       })}

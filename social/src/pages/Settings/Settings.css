@@ -75,6 +75,13 @@
   font-size: 0.9rem;
 }
 
+.settingsError {
+  color: #c34453;
+  font-weight: 600;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 1200px) {
   .SettingsPage {
     grid-template-columns: minmax(0, 1fr);

@@ -1,19 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./InfoCard.css";
 import { UilPen } from "@iconscout/react-unicons";
 import ProfileModal from "../ProfileModal/ProfileModal";
 import { useNavigate } from "react-router-dom";
+import { clearUserSession, getStoredUserProfile } from "../../utils/session";
 const InfoCard = () => {
 const [modalOpened, setModalOpened] = useState(false);
 const navigate = useNavigate();
+const [profile, setProfile] = useState(getStoredUserProfile());
+
+useEffect(() => {
+  const syncProfile = () => setProfile(getStoredUserProfile());
+  window.addEventListener("session:updated", syncProfile);
+  window.addEventListener("profile:updated", syncProfile);
+  return () => {
+    window.removeEventListener("session:updated", syncProfile);
+    window.removeEventListener("profile:updated", syncProfile);
+  };
+}, []);
 
 const handleLogout = () => {
-  localStorage.removeItem("userId");
-  localStorage.removeItem("image");
-  localStorage.removeItem("followersList");
-  localStorage.removeItem("name");
-  localStorage.removeItem("bio");
-  localStorage.removeItem("website");
+  clearUserSession();
   navigate("/");
 };
 
@@ -35,21 +42,21 @@ return (
 </div>
 <div className="info">
 <span>
-<b>Status </b>
+<b>Display Name </b>
 </span>
-<span>in Relationship</span>
+<span>{profile.displayName || "FSM User"}</span>
 </div>
 <div className="info">
 <span>
-<b>Lives in </b>
+<b>Bio </b>
 </span>
-<span>Multan</span>
+<span>{profile.bio || "Add a bio from Edit Profile or Settings."}</span>
 </div>
 <div className="info">
 <span>
-<b>Works at </b>
+<b>Website </b>
 </span>
-<span>Zainkeepscode inst</span>
+<span>{profile.website || "Add your website to share more about yourself."}</span>
 </div>
 <button className="button logout-button" onClick={handleLogout}>Logout</button>
 </div>

@@ -3,13 +3,18 @@ import { useNavigate } from "react-router-dom";
 import ProfileLeft from "../../components/ProfileLeft/ProfileLeft";
 import RightSide from "../../components/RightSide/RightSide";
 import "./Settings.css";
+import { apiFetch } from "../../utils/api";
+import { getStoredUserProfile, persistUserSession } from "../../utils/session";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const [displayName, setDisplayName] = useState(localStorage.getItem("name") || "");
-  const [bio, setBio] = useState(localStorage.getItem("bio") || "");
-  const [website, setWebsite] = useState(localStorage.getItem("website") || "");
+  const storedProfile = getStoredUserProfile();
+  const [displayName, setDisplayName] = useState(storedProfile.displayName);
+  const [bio, setBio] = useState(storedProfile.bio);
+  const [website, setWebsite] = useState(storedProfile.website);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("userId")) {
@@ -17,12 +22,40 @@ const Settings = () => {
     }
   }, [navigate]);
 
-  const handleSave = (event) => {
+  const handleSave = async (event) => {
     event.preventDefault();
-    localStorage.setItem("name", displayName.trim());
-    localStorage.setItem("bio", bio.trim());
-    localStorage.setItem("website", website.trim());
-    setSaved(true);
+    setSaved(false);
+    setError("");
+    setIsSaving(true);
+
+    try {
+      const response = await apiFetch(`/api/user/${storedProfile.userId}/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          displayName: displayName.trim(),
+          bio: bio.trim(),
+          website: website.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        setError(payload?.error || "Unable to save changes.");
+        return;
+      }
+
+      persistUserSession(await response.json());
+      window.dispatchEvent(new Event("profile:updated"));
+      setSaved(true);
+    } catch (saveError) {
+      setError("Unable to save changes.");
+    } finally {
+      setIsSaving(false);
+    }
+
     setTimeout(() => setSaved(false), 2000);
   };
 
@@ -60,10 +93,11 @@ const Settings = () => {
               placeholder="https://your-site.com"
             />
 
-            <button className="button settingsSaveButton" type="submit">
-              Save Changes
+            <button className="button settingsSaveButton" type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Changes"}
             </button>
             {saved ? <span className="settingsSaved">Saved successfully.</span> : null}
+            {error ? <span className="settingsError">{error}</span> : null}
           </form>
         </div>
       </div>

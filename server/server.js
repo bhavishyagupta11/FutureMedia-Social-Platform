@@ -67,6 +67,8 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json());
+app.use("/uploads", express.static(path.resolve(__dirname, "uploads")));
+app.use("/legacy-uploads", express.static(path.resolve(__dirname, "routes", "uploads")));
 
 app.use("/api", (req, res, next) => {
   if (mongoose.connection.readyState !== 1) {

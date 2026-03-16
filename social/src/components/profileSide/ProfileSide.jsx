@@ -6,17 +6,13 @@ import { NavLink, useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "./ProfileSide.css";
+import { clearUserSession } from "../../utils/session";
 
 const ProfileSide = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("image");
-    localStorage.removeItem("followersList");
-    localStorage.removeItem("name");
-    localStorage.removeItem("bio");
-    localStorage.removeItem("website");
+    clearUserSession();
     navigate("/");
   };
 

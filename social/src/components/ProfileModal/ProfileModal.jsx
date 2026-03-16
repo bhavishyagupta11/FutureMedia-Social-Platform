@@ -1,18 +1,51 @@
 import React, { useState } from "react";
 import "./ProfileModal.css";
+import { apiFetch } from "../../utils/api";
+import { getStoredUserProfile, persistUserSession } from "../../utils/session";
 
 const ProfileModal = ({ modalOpened, setModalOpened }) => {
-  const [displayName, setDisplayName] = useState(localStorage.getItem("name") || "");
-  const [bio, setBio] = useState(localStorage.getItem("bio") || "");
-  const [website, setWebsite] = useState(localStorage.getItem("website") || "");
+  const storedProfile = getStoredUserProfile();
+  const [displayName, setDisplayName] = useState(storedProfile.displayName);
+  const [bio, setBio] = useState(storedProfile.bio);
+  const [website, setWebsite] = useState(storedProfile.website);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
 
   if (!modalOpened) return null;
 
-  const handleSave = (event) => {
+  const handleSave = async (event) => {
     event.preventDefault();
-    localStorage.setItem("name", displayName.trim());
-    localStorage.setItem("bio", bio.trim());
-    localStorage.setItem("website", website.trim());
+    setIsSaving(true);
+    setError("");
+
+    try {
+      const response = await apiFetch(`/api/user/${storedProfile.userId}/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          displayName: displayName.trim(),
+          bio: bio.trim(),
+          website: website.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        setError(payload?.error || "Unable to save profile.");
+        return;
+      }
+
+      persistUserSession(await response.json());
+      window.dispatchEvent(new Event("profile:updated"));
+    } catch (saveError) {
+      setError("Unable to save profile.");
+      return;
+    } finally {
+      setIsSaving(false);
+    }
+
     setModalOpened(false);
   };
 
@@ -52,9 +85,10 @@ const ProfileModal = ({ modalOpened, setModalOpened }) => {
             placeholder="https://your-site.com"
           />
 
-          <button className="button profileSaveButton" type="submit">
-            Save
+          <button className="button profileSaveButton" type="submit" disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
           </button>
+          {error ? <span style={{ color: "#c34453", fontWeight: 600 }}>{error}</span> : null}
         </form>
       </div>
     </div>

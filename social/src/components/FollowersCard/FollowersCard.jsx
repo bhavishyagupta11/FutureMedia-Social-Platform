@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import "./FollowersCard.css";
 import { apiFetch } from "../../utils/api";
 import ProfileImage from "../../img/profileImg.jpg";
+import { getSessionUserId, getStoredUserProfile, persistUserSession } from "../../utils/session";
 
 const FollowersCard = () => {
   const [users, setUsers] = useState([]);
-  const [unfollow, setUnfollow] = useState([]);
+  const [following, setFollowing] = useState(getStoredUserProfile().followingList);
+  const [loadingUserId, setLoadingUserId] = useState("");
 
-  // Fetch all users
   const fetchUsers = async () => {
     try {
       const response = await apiFetch("/api/user/all");
@@ -17,7 +18,6 @@ const FollowersCard = () => {
         return;
       }
       const converted = await response.json();
-      console.log("all users", converted);
       setUsers(converted);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -26,25 +26,26 @@ const FollowersCard = () => {
 
   useEffect(() => {
     fetchUsers();
-    const storedFollowers = localStorage.getItem("followersList");
-    // followersList is likely stored as a JSON string array of ids
-    if (storedFollowers) {
-      try {
-        setUnfollow(JSON.parse(storedFollowers));
-      } catch {
-        // if for some reason it's a plain string
-        setUnfollow(storedFollowers);
-      }
-    }
+  }, []);
+
+  useEffect(() => {
+    const syncSession = () => setFollowing(getStoredUserProfile().followingList);
+    window.addEventListener("session:updated", syncSession);
+    window.addEventListener("profile:updated", syncSession);
+    return () => {
+      window.removeEventListener("session:updated", syncSession);
+      window.removeEventListener("profile:updated", syncSession);
+    };
   }, []);
 
   const handleFollow = async (follower) => {
     const formData = {
-      userId: localStorage.getItem("userId"),
-      followerId: follower._id,
+      currentUserId: getSessionUserId(),
+      targetUserId: follower._id,
     };
 
     try {
+      setLoadingUserId(follower._id);
       const response = await apiFetch("/api/profile/follow", {
         method: "POST",
         headers: {
@@ -59,18 +60,22 @@ const FollowersCard = () => {
       }
 
       const userData = await response.json();
-      setUnfollow(userData.followersList);
-      localStorage.setItem(
-        "followersList",
-        JSON.stringify(userData.followersList)
+      persistUserSession(userData.currentUser);
+      setFollowing(userData.currentUser?.followingsList || []);
+      setUsers((currentUsers) =>
+        currentUsers.map((item) =>
+          item._id === follower._id ? userData.targetUser : item
+        )
       );
-      console.log("Posting..... info response", userData);
+      window.dispatchEvent(new Event("profile:updated"));
     } catch (err) {
       console.error("Error updating follow state:", err);
+    } finally {
+      setLoadingUserId("");
     }
   };
 
-  const currentUserId = localStorage.getItem("userId");
+  const currentUserId = getSessionUserId();
 
   return (
     <div className="FollowersCard">
@@ -96,10 +101,13 @@ const FollowersCard = () => {
                 <button
                   className="button fc-button"
                   onClick={() => handleFollow(follower)}
+                  disabled={loadingUserId === follower._id}
                 >
-                  {unfollow?.includes(follower._id)
-                    ? "Unfollow"
-                    : "Follow"}
+                  {loadingUserId === follower._id
+                    ? "Saving..."
+                    : following?.includes(follower._id)
+                      ? "Unfollow"
+                      : "Follow"}
                 </button>
               </div>
             ))

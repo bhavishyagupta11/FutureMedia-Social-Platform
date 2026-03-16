@@ -6,17 +6,13 @@ import { UilSetting } from "@iconscout/react-unicons";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "./ProfileLeft.css";
+import { clearUserSession } from "../../utils/session";
 
 const ProfileLeft = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("image");
-    localStorage.removeItem("followersList");
-    localStorage.removeItem("name");
-    localStorage.removeItem("bio");
-    localStorage.removeItem("website");
+    clearUserSession();
     navigate("/");
   };
 

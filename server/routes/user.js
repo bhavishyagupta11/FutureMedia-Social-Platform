@@ -8,6 +8,7 @@ const router = express.Router();
 
 const normalizeUsername = (username) => String(username || "").trim().toLowerCase();
 const normalizeName = (name) => String(name || "").trim();
+const normalizeOptional = (value) => String(value || "").trim();
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const findUserByUsernameCaseInsensitive = async (username) =>
@@ -63,6 +64,7 @@ router.post("/signup", async (req, res) => {
     const newUser = new User({
       firstName,
       lastName,
+      displayName: `${firstName} ${lastName}`.trim(),
       username,
       password: hashPassword(password),
     });
@@ -122,6 +124,53 @@ router.get("/all", async (req, res) => {
   try {
     const users = await User.find();
     return res.status(200).json(users.map(mapUserToPublic));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:userId", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.status(200).json(mapUserToPublic(user));
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/:userId/profile", async (req, res) => {
+  try {
+    const { displayName, bio, website, img } = req.body || {};
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const cleanedDisplayName = normalizeOptional(displayName);
+    user.displayName = cleanedDisplayName;
+    user.bio = normalizeOptional(bio);
+    user.website = normalizeOptional(website);
+
+    if (typeof img === "string") {
+      user.img = img.trim();
+    }
+
+    if (cleanedDisplayName) {
+      const nameParts = cleanedDisplayName.split(/\s+/).filter(Boolean);
+      user.firstName = nameParts[0] || user.firstName;
+      user.lastName = nameParts.slice(1).join(" ") || "";
+    }
+
+    await user.save();
+
+    return res.status(200).json(mapUserToPublic(user));
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });

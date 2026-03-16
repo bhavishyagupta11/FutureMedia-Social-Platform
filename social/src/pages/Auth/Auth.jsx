@@ -3,6 +3,7 @@ import "./Auth.css";
 import { Link, useNavigate } from "react-router-dom";
 import { apiFetch } from "../../utils/api";
 import BirdLogo from "../../img/fsm-bird.svg";
+import { clearUserSession, persistUserSession } from "../../utils/session";
 
 const Auth = () => {
   return (
@@ -51,7 +52,7 @@ function LogIn() {
 
   useEffect(() => {
     if (localStorage.getItem("userId")) {
-      localStorage.removeItem("userId");
+      clearUserSession();
     }
   }, []);
 
@@ -83,16 +84,7 @@ function LogIn() {
 
       if (response.ok) {
         const resp = await response.json();
-        localStorage.setItem("userId", resp.data._id);
-        localStorage.setItem("image", resp.data.img);
-        localStorage.setItem(
-          "followersList",
-          JSON.stringify(resp.data.followersList || [])
-        );
-        localStorage.setItem(
-          "name",
-          `${resp.data.firstName} ${resp.data.lastName}`
-        );
+        persistUserSession(resp.data);
         navigate("/home");
       } else {
         let message = "Login failed. Please try again.";
@@ -164,7 +156,7 @@ function LogIn() {
 const SignUp = () => {
   useEffect(() => {
     if (localStorage.getItem("userId")) {
-      localStorage.removeItem("userId");
+      clearUserSession();
     }
   }, []);
 
@@ -232,16 +224,7 @@ function Authenticate() {
 
         if (loginResponse.ok) {
           const resp = await loginResponse.json();
-          localStorage.setItem("userId", resp.data._id);
-          localStorage.setItem("image", resp.data.img);
-          localStorage.setItem(
-            "followersList",
-            JSON.stringify(resp.data.followersList || [])
-          );
-          localStorage.setItem(
-            "name",
-            `${resp.data.firstName} ${resp.data.lastName}`
-          );
+          persistUserSession(resp.data);
           navigate("/home");
           return;
         }

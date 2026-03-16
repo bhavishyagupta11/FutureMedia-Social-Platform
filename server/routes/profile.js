@@ -18,6 +18,7 @@ const fetchProfileData = async (userId) => {
   }
 
   return {
+    user: mapUserToPublic(userData),
     posts,
     followers: userData.followers,
     followings: userData.followings,
@@ -64,27 +65,55 @@ router.post("/info", async (req, res) => {
 
 router.post("/follow", async (req, res) => {
   try {
-    const { userId, followerId } = req.body || {};
-    if (!isValidId(userId) || !isValidId(followerId)) {
-      return res.status(400).json({ error: "Valid userId and followerId are required" });
+    const currentUserId = req.body?.currentUserId || req.body?.userId;
+    const targetUserId = req.body?.targetUserId || req.body?.followerId;
+
+    if (!isValidId(currentUserId) || !isValidId(targetUserId)) {
+      return res.status(400).json({ error: "Valid currentUserId and targetUserId are required" });
     }
 
-    if (String(userId) === String(followerId)) {
+    if (String(currentUserId) === String(targetUserId)) {
       return res.status(400).json({ error: "You cannot follow yourself" });
     }
 
-    const targetUser = await User.findOne({ _id: userId });
-    if (!targetUser) {
+    const [currentUser, targetUser] = await Promise.all([
+      User.findOne({ _id: currentUserId }),
+      User.findOne({ _id: targetUserId }),
+    ]);
+
+    if (!currentUser || !targetUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const alreadyFollowing = targetUser.followersList.includes(String(followerId));
-    const update = alreadyFollowing
-      ? { $pull: { followersList: String(followerId) }, $inc: { followers: -1 } }
-      : { $addToSet: { followersList: String(followerId) }, $inc: { followers: 1 } };
+    const alreadyFollowing = targetUser.followersList.includes(String(currentUserId));
 
-    const updatedUser = await User.findOneAndUpdate({ _id: userId }, update, { new: true });
-    return res.status(200).json(mapUserToPublic(updatedUser));
+    await Promise.all([
+      User.findOneAndUpdate(
+        { _id: targetUserId },
+        alreadyFollowing
+          ? { $pull: { followersList: String(currentUserId) }, $inc: { followers: -1 } }
+          : { $addToSet: { followersList: String(currentUserId) }, $inc: { followers: 1 } },
+        { new: true }
+      ),
+      User.findOneAndUpdate(
+        { _id: currentUserId },
+        alreadyFollowing
+          ? { $pull: { followingsList: String(targetUserId) }, $inc: { followings: -1 } }
+          : { $addToSet: { followingsList: String(targetUserId) }, $inc: { followings: 1 } },
+        { new: true }
+      ),
+    ]);
+
+    const [updatedCurrentUser, updatedTargetUser] = await Promise.all([
+      User.findOne({ _id: currentUserId }),
+      User.findOne({ _id: targetUserId }),
+    ]);
+
+    return res.status(200).json({
+      currentUser: mapUserToPublic(updatedCurrentUser),
+      targetUser: mapUserToPublic(updatedTargetUser),
+      following: !alreadyFollowing,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
@@ -113,6 +142,49 @@ router.post("/like", async (req, res) => {
       { $addToSet: { likedUser: userId }, $inc: { likes: 1 } },
       { new: true }
     );
+    return res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.post("/comment", async (req, res) => {
+  try {
+    const { _id, userId, text } = req.body || {};
+    const cleanedText = String(text || "").trim();
+
+    if (!isValidId(_id) || !isValidId(userId)) {
+      return res.status(400).json({ error: "Valid post id and userId are required" });
+    }
+
+    if (!cleanedText) {
+      return res.status(400).json({ error: "Comment text is required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      _id,
+      {
+        $push: {
+          comments: {
+            userId,
+            userName: user.displayName || `${user.firstName} ${user.lastName}`.trim() || user.username,
+            text: cleanedText,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
     return res.status(200).json(updatedPost);
   } catch (error) {
     console.error(error);
